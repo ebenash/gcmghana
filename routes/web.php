@@ -18,4 +18,8 @@ Route::get('/', function () {
 });
 
 
-Route::post('/chatbot/callback/accept', 'Controller@chatbot_callback_api')->name('chatbot-callback');
+Route::post('/chatbot/callback/accept', 'App\Http\Controllers\Controller@chatbot_callback_api')->name('chatbot-callback');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

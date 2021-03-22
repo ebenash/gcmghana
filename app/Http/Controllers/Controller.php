@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -31,7 +32,7 @@ class Controller extends BaseController
         }else if($type == 'location'){
             $url = 'https://api.chatbotsghana.com/api/send/location/msg';
         }else if($type == 'optin'){
-            $url = 'https://api.Chatbot Ghana.com/api/opt/in';
+            $url = 'https://api.Chatbotsghana.com/api/opt/in';
         }else if($type == 'optout'){
             $url = 'https://api.chatbotsghana.com/api/opt/out';
         }else if($type == 'users'){
@@ -79,7 +80,7 @@ class Controller extends BaseController
         // $this->writelog("Callback Payload: ".json_encode($request->all())."\n",1);
         try{
             $message_results = json_decode(json_encode($request->all()));
-            
+            // dd($message_results);
             Notification::route('mail', 'ebenezer.ashiakwei@wigal.com.gh')->notify(new SendAdminEmailNotification(json_encode($message_results)));
             // foreach($message_results as $input)
             // {
@@ -89,8 +90,9 @@ class Controller extends BaseController
             // mysqli_query($localcon,"COMMIT");
 
             return array("code" => 200, "message"=> "MESSAGE ACCEPTED", "result"=> []);
-        }catch(\Exception $e){       
-            // Notification::route('mail', (env("EXCEPTION_EMAIL", 'ebenezer.ashiakwei@wigal.com.gh')))->notify(new ExceptionAlertNotification($e));
+        }catch(\Exception $e){     
+            // dd($e);  
+            Notification::route('mail', (env("EXCEPTION_EMAIL", 'ebenezer.ashiakwei@wigal.com.gh')))->notify(new SendAdminEmailNotification(json_encode($e)));
             // $this->writelog("Error Received: ".$e."\n",1);
             return array("code" => 400, "message"=> "MESSAGE REJECTED", "result"=> []);
         }
