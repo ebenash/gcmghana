@@ -91,7 +91,7 @@ class Controller extends BaseController
 
             return array("code" => 200, "message"=> "MESSAGE ACCEPTED", "result"=> []);
         }catch(\Exception $e){     
-            // dd($e);  
+                // dd($e);  
             Notification::route('mail', (env("EXCEPTION_EMAIL", 'ebenezer.ashiakwei@wigal.com.gh')))->notify(new SendAdminEmailNotification(json_encode($e)));
             // $this->writelog("Error Received: ".$e."\n",1);
             return array("code" => 400, "message"=> "MESSAGE REJECTED", "result"=> []);
