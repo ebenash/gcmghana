@@ -152,17 +152,17 @@ trait TestDatabases
 
         $url = config("database.connections.{$default}.url");
 
-        if ($url) {
-            config()->set(
-                "database.connections.{$default}.url",
-                preg_replace('/^(.*)(\/[\w-]*)(\??.*)$/', "$1/{$database}$3", $url),
-            );
-        } else {
-            config()->set(
-                "database.connections.{$default}.database",
-                $database,
-            );
-        }
+        // if ($url) {
+        //     config()->set(
+        //         "database.connections.{$default}.url",
+        //         preg_replace('/^(.*)(\/[\w-]*)(\??.*)$/', "$1/{$database}$3", $url),
+        //     );
+        // } else {
+        //     config()->set(
+        //         "database.connections.{$default}.database",
+        //         $database,
+        //     );
+        // }
     }
 
     /**

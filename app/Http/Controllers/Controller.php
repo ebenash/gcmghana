@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use DB;
 use App\Models\Contact;
+use App\Models\Message;
 use App\Models\Counsellor;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -113,7 +114,7 @@ class Controller extends BaseController
                                 $existing_contact->save();
                             }
                             if(date('Y-m-d',strtotime($last_contact)) < date('Y-m-d')){
-                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv?\n2. I want to chat with a Counsellor";
+                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback!\n2. I want to chat with a Counsellor";
                                 $existing_contact->last_contact = date('Y-m-d H:i:s');
                                 $existing_contact->save();
                             }else{
@@ -124,9 +125,9 @@ class Controller extends BaseController
                                     }else if($response == "2"){
                                         $message ="Searching for a counsellor for you...";
                                         $this->api_chatbot_send_message($message,$sender->phone);
-                                        $message ="Please note that we will be sending send your contact details to one of our Counsellors. \nPlease type 'SEND TO Counsellor' to procceed and 'CANCEL' to cancel the sending";
+                                        $message ="Please note that we will be sending send your contact details to one of our Counsellors. \nPlease type 'SEND TO COUNSELLOR' to procceed and 'CANCEL' to cancel the sending";
             
-                                    }else if(strtoupper($response) == "SEND TO Counsellor"){
+                                    }else if(strtoupper($response) == "SEND TO COUNSELLOR"){
                                         if(!$existing_contact->counselor_id){
                                             $counsellor = DB::table('contacts as contacts')->rightJoin('counsellors as counsellors','counsellors.id','=','contacts.counselor_id')->select(DB::raw('counsellors.id, counsellors.name, counsellors.phone,IFNULL(count(contacts.counselor_id), 0) as counter'))->groupBy('counsellors.id')->orderBy('counter','desc')->first();
                                         }else{
@@ -144,7 +145,7 @@ class Controller extends BaseController
                                     }else if(strtoupper($response) == "CANCEL" || strtoupper($response) == "BACK"){
                                         $message ="Process Cancelled.";
                                         $this->api_chatbot_send_message($message,$sender->phone);
-                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv?\n2. I want to chat with a Counsellor";
+                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback\n2. I want to chat with a Counsellor";
                                     }else{
                                         $message = "Message Recieved.";
 
@@ -166,7 +167,7 @@ class Controller extends BaseController
                             $existing_contact->last_contact = date('Y-m-d H:i:s');
                             $existing_contact->save();
 
-                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv?\n2. I want to chat with a Counsellor";
+                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback\n2. I want to chat with a Counsellor";
                         }
 
                         $result = $this->api_chatbot_send_message($message,$sender->phone);
