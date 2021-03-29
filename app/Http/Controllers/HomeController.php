@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
+use App\Models\Message;
+use App\Models\Counsellor;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +26,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $data['counsellors'] = Counsellor::count();
+        $data['contacts'] = Contact::count();
+        $data['messages'] = Message::count();
+        return view('home',$data);
     }
 }
