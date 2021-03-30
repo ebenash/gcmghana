@@ -12,6 +12,8 @@
                         <thead>
                             <tr>
                                 <th>Message</th>
+                                <th>Sent By</th>
+                                <th>Phone</th>
                                 <th>Date Sent</th>
                             </tr>
                         </thead>
@@ -19,6 +21,8 @@
                             @foreach ($messages as $item)
                                 <tr>
                                     <td>{{$item->message}}</td>
+                                    <td>{{$item->contact->name ?? 'Not Found'}}</td>
+                                    <td>{{$item->contact->phone ?? 'Not Found'}}</td>
                                     <td>{{$item->created_at}}</td>
                                 </tr>
                             @endforeach

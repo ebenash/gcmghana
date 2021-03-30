@@ -18,7 +18,7 @@ class CreateContactsTable extends Migration
             $table->string('name',100);
             $table->string('phone',50);
             $table->string('country_code',5);
-            $table->integer('counselor_id')->nullable();
+            $table->integer('counsellor_id')->nullable();
             $table->datetime('last_contact');
             $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));

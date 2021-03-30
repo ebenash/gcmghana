@@ -17,7 +17,6 @@ class CreateMessagesTable extends Migration
             $table->id();
             $table->text('message');
             $table->integer('contact_id');
-            $table->datetime('last_contact');
             $table->timestamp('created_at')->default(\DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(\DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
         });

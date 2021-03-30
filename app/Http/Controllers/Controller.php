@@ -17,7 +17,41 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    public function mysqli_connection()
+    {
+        $DB_Type = env("DB_CONNECTION", "mysql");
+        $DB_Host = env("DB_HOST", "localhost"); //set DB Host IP 
+        $DB_Name = env("DB_DATABASE", "gcmghana"); //set DB Name 
+        $DB_User = env("DB_USERNAME", "root"); //set DB User Name 
+        $DB_Pass = env("DB_PASSWORD", "root"); //set DB Password
+        date_default_timezone_set("Africa/Accra");
 
+        $con = @mysqli_connect($DB_Host,$DB_User,$DB_Pass,$DB_Name) or die("could not connect to mysql");
+        return $con;
+    }
+
+    public function mysqli_fetch($sql){
+        
+        $localcon=$this->mysqli_connection();
+        $result = mysqli_query($localcon,$sql);
+        $result_array = null;
+        if($result){
+            if(mysqli_num_rows($result) == 1)
+            {
+                $result_array = json_decode(json_encode(current(mysqli_fetch_all($result,MYSQLI_ASSOC))));
+                mysqli_close($localcon);
+                return $result_array;
+            }else if(mysqli_num_rows($result) > 1)
+            {
+                $result_array = json_decode(json_encode(mysqli_fetch_all($result,MYSQLI_ASSOC)));
+                mysqli_close($localcon);
+                return $result_array;
+            }
+        }
+        mysqli_close($localcon);
+        return $result_array;
+    }
+    
     public function api_chatbot_universal_gateway($postdata,$type)
     {
 
@@ -92,6 +126,19 @@ class Controller extends BaseController
         return $this->api_chatbot_universal_gateway($postdata,'text');
     }
     
+    public function api_chatbot_send_template($message,$phone)
+    {
+        $postdata = [
+            "apikey"=> "c9b0dd70-b0ff-4ce8-9c9d-a3bbb2947fe5",
+            "sender"=> "233506758586",
+            "destination"=> $phone,
+            "botname"=> "GreatCommissionOfGhana",
+            "message"=> $message ?? 'NO MESSAGE FOUND'
+        ];
+
+        return $this->api_chatbot_universal_gateway($postdata,'template');
+    }
+    
     public function chatbot_callback_api(Request $request)
     {
         // $this->writelog("Callback Payload: ".json_encode($request->all())."\n",1);
@@ -114,7 +161,7 @@ class Controller extends BaseController
                                 $existing_contact->save();
                             }
                             if(date('Y-m-d',strtotime($last_contact)) < date('Y-m-d')){
-                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback!\n2. I want to chat with a Counsellor";
+                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback!\2️⃣. I want to chat with a Counsellor";
                                 $existing_contact->last_contact = date('Y-m-d H:i:s');
                                 $existing_contact->save();
                             }else{
@@ -125,27 +172,30 @@ class Controller extends BaseController
                                     }else if($response == "2"){
                                         $message ="Searching for a counsellor for you...";
                                         $this->api_chatbot_send_message($message,$sender->phone);
-                                        $message ="Please note that we will be sending send your contact details to one of our Counsellors. \nPlease type 'SEND TO COUNSELLOR' to procceed and 'CANCEL' to cancel the sending";
+                                        $message ="Please note that we will be sending send your contact details to one of our Counsellors. \nPlease type 'YES' to procceed and 'NO' to cancel the sending";
             
-                                    }else if(strtoupper($response) == "SEND TO COUNSELLOR"){
-                                        if(!$existing_contact->counselor_id){
-                                            $counsellor = DB::table('contacts as contacts')->rightJoin('counsellors as counsellors','counsellors.id','=','contacts.counselor_id')->select(DB::raw('counsellors.id, counsellors.name, counsellors.phone,IFNULL(count(contacts.counselor_id), 0) as counter'))->groupBy('counsellors.id')->orderBy('counter','desc')->first();
+                                    }else if(strtoupper($response) == "YES"){
+                                        if(!$existing_contact->counsellor_id){
+                                            // $counsellor = DB::table('contacts as contacts')->rightJoin('counsellors as counsellors','counsellors.id','=','contacts.counsellor_id')->select(DB::raw('counsellors.id, counsellors.name, counsellors.phone,IFNULL(count(contacts.counsellor_id), 0) as counter'))->groupBy('counsellors.id')->orderBy('counter','asc')->first();
+                                            $counsellor = $this->mysqli_fetch("select counsellors.id, counsellors.name, counsellors.phone,IFNULL(count(contacts.counsellor_id), 0) as counter from `contacts` as `contacts` right join `counsellors` as `counsellors` on `counsellors`.`id` = `contacts`.`counsellor_id` group by `counsellors`.`id` order by `counter` asc limit 1");
                                         }else{
-                                            $counsellor = Counsellor::find();
+                                            $counsellor = Counsellor::find($existing_contact->counsellor_id);
                                         }
                                         // dd($counsellor);
                                         if($counsellor){
                                             $message = ($sender->name ?? 'Dear One').". Your WhatsApp Number has been sent to Counsellor ".($counsellor->name)." who will be reaching out to you soon. Thank you for reaching out to us!";
 
-                                            $existing_contact->counselor_id = $counsellor->id;
+                                            $existing_contact->counsellor_id = $counsellor->id;
                                             $existing_contact->save();                                    
-                                            $counsellor_message = "Hello Counsellor".($counsellor->name ?? '').", A new user has been assigned to you. Details Below. \n\nName: ".($sender->name)." \nWhatsApp Number:".($sender->phone)."\n\n Please reach out to them as soon as possible. \n\nThank you!";
+                                            $counsellor_message = "Hello Counsellor ".($counsellor->name ?? '').",\n A new user has been assigned to you. Details Below. \n\nName: ".($sender->name)." \nWhatsApp Number:".($sender->phone)."\n\n Please reach out to them as soon as possible. \n\nThank you!";
                                             $this->api_chatbot_send_message($counsellor_message,$counsellor->phone);                            
                                         }
-                                    }else if(strtoupper($response) == "CANCEL" || strtoupper($response) == "BACK"){
+                                    }else if(strtoupper($response) == "CANCEL" || strtoupper($response) == "NO"){
                                         $message ="Process Cancelled.";
                                         $this->api_chatbot_send_message($message,$sender->phone);
-                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback\n2. I want to chat with a Counsellor";
+                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
+                                    }else if(strtoupper($response) == "BACK"){
+                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
                                     }else{
                                         $message = "Message Recieved.";
 
@@ -155,7 +205,7 @@ class Controller extends BaseController
                                         $new->save();
                                     }
                                 }else{
-                                    $message = "Response not recognized. Your message must be a text in resopnse to the last message.2";
+                                    // $message = "Response not recognized. Your message must be a text in resopnse to the last message.";
                                 }
                             }
 
@@ -167,7 +217,7 @@ class Controller extends BaseController
                             $existing_contact->last_contact = date('Y-m-d H:i:s');
                             $existing_contact->save();
 
-                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1. Did you Like what you saw on Tv? Send Us Feedback\n2. I want to chat with a Counsellor";
+                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
                         }
 
                         $result = $this->api_chatbot_send_message($message,$sender->phone);
@@ -229,6 +279,4 @@ class Controller extends BaseController
         }
         return $phone;
     }
-
-
 }
