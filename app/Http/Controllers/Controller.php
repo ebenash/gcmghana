@@ -161,15 +161,15 @@ class Controller extends BaseController
                                 $existing_contact->save();
                             }
                             if(date('Y-m-d',strtotime($last_contact)) < date('Y-m-d')){
-                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback!\2️⃣. I want to chat with a Counsellor";
+                                $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback!\n2️⃣. I want to chat with a Counsellor";
                                 $existing_contact->last_contact = date('Y-m-d H:i:s');
                                 $existing_contact->save();
                             }else{
                                 if($payload->type == 'text'){
                                     $response = $payload->payload->text ?? null;
                                     if($response == "1"){
-                                        $message ="We are happy to hear that you have feedback for us. Please enter your feedback after this message.";
-                                    }else if($response == "2"){
+                                    //     $message ="We are happy to hear that you have feedback for us. Please enter your feedback after this message.";
+                                    // }else if($response == "2"){
                                         $message ="Searching for a counsellor for you...";
                                         $this->api_chatbot_send_message($message,$sender->phone);
                                         $message ="Please note that we will be sending send your contact details to one of our Counsellors. \nPlease type 'YES' to procceed and 'NO' to cancel the sending";
@@ -183,7 +183,7 @@ class Controller extends BaseController
                                         }
                                         // dd($counsellor);
                                         if($counsellor){
-                                            $message = ($sender->name ?? 'Dear One').". Your WhatsApp Number has been sent to Counsellor ".($counsellor->name)." who will be reaching out to you soon. Thank you for reaching out to us!";
+                                            $message = ($sender->name ?? 'Dear One').". Your WhatsApp Number has been sent to Counsellor ".($counsellor->name)." who will be reaching out to you soon. Thank you for reaching out to us!\n\nType 'BACK' to go back to the main menu.";
 
                                             $existing_contact->counsellor_id = $counsellor->id;
                                             $existing_contact->save();                                    
@@ -193,9 +193,9 @@ class Controller extends BaseController
                                     }else if(strtoupper($response) == "CANCEL" || strtoupper($response) == "NO"){
                                         $message ="Process Cancelled.";
                                         $this->api_chatbot_send_message($message,$sender->phone);
-                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
+                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ I want to chat with a Counsellor";
                                     }else if(strtoupper($response) == "BACK"){
-                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
+                                        $message = "Welcome back ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us again. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ I want to chat with a Counsellor";
                                     }else{
                                         $message = "Message Recieved.";
 
@@ -217,7 +217,7 @@ class Controller extends BaseController
                             $existing_contact->last_contact = date('Y-m-d H:i:s');
                             $existing_contact->save();
 
-                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ Did you Like what you saw on Tv? Send Us Feedback\n2️⃣ I want to chat with a Counsellor";
+                            $message = "Welcome ".($sender->name ?? 'Dear One').", we are happy to have you here and thank you 🙏for  💬messaging us. \nAkwaaba!!! 🤝 to the Great Commission Movement of Ghana Film 🎞 Project. \n\nWe hope you have seen the Jesus Film, if you want to watch it again or if you haven't watched so far here is the link.\nhttps://www.jesusfilm.org/watch/jesus.html/english.html\n\nYou can type the number you see before the menu to navigate!\n1️⃣ I want to chat with a Counsellor";
                         }
 
                         $result = $this->api_chatbot_send_message($message,$sender->phone);
@@ -232,11 +232,11 @@ class Controller extends BaseController
                         // mysqli_query($localcon,"COMMIT");
                     }else{
                         return array("code" => 400, "message"=> "Sender Not Found in Payload", "result"=> []);
-                        Notification::route('mail', 'ebenezer.ashiakwei@wigal.com.gh')->notify(new SendAdminEmailNotification(json_encode($message_results)));
+                        // Notification::route('mail', 'ebenezer.ashiakwei@wigal.com.gh')->notify(new SendAdminEmailNotification(json_encode($message_results)));
                     }
                 }else{
                     return array("code" => 400, "message"=> "Payload Not Found in Payload", "result"=> []);
-                    Notification::route('mail', 'ebenezer.ashiakwei@wigal.com.gh')->notify(new SendAdminEmailNotification(json_encode($message_results)));
+                    // Notification::route('mail', 'ebenezer.ashiakwei@wigal.com.gh')->notify(new SendAdminEmailNotification(json_encode($message_results)));
                 }
             }
 
